@@ -12,7 +12,7 @@ const posts = (await getCollection('posts', ({ data }) => !data.draft))
   {posts.length === 0 && <p class="empty">还没有文章。</p>}
   {posts.map((post) => (
     <article class="post">
-      <h2><a href={`/posts/${post.id}/`}>{post.data.title}</a></h2>
+      <h2><a href={`/posts/${post.id.replace(/\.md$/, '')}/`}>{post.data.title}</a></h2>
       <p class="post-meta">
         {post.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
         {post.data.series && <> · 系列:{post.data.series}</>}

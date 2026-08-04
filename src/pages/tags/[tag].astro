@@ -27,7 +27,7 @@ notes.sort(sortByDate);
   {posts.length > 0 && <h2>文章</h2>}
   {posts.map((post) => (
     <article class="post">
-      <h2><a href={`/posts/${post.id}/`}>{post.data.title}</a></h2>
+      <h2><a href={`/posts/${post.id.replace(/\.md$/, '')}/`}>{post.data.title}</a></h2>
       <p class="post-meta">
         {post.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
       </p>
@@ -37,7 +37,7 @@ notes.sort(sortByDate);
   {notes.length > 0 && <h2>花园</h2>}
   {notes.map((note) => (
     <article class="post">
-      <h2><a href={`/notes/${note.id}/`}>{note.data.title}</a></h2>
+      <h2><a href={`/notes/${note.id.replace(/\.md$/, '')}/`}>{note.data.title}</a></h2>
       <p class="post-meta">
         {note.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
       </p>

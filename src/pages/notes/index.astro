@@ -15,10 +15,10 @@ const notes = (await getCollection('notes', ({ data }) => !data.draft))
   {notes.length === 0 && <p class="empty">还没有花园笔记。</p>}
   {notes.map((note) => (
     <article class="post">
-      <h2><a href={`/notes/${note.id}/`}>{note.data.title}</a></h2>
+      <h2><a href={`/notes/${note.id.replace(/\.md$/, '')}/`}>{note.data.title}</a></h2>
       <p class="post-meta">
         {note.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
-        {note.data.source && <> · <a href={note.data.source}>来源笔记</a></>}
+        {note.data.source && <> · 来源:{note.data.source}</>}
       </p>
       <div class="tag-list">
         {note.data.tags.map((t) => <a href={`/tags/${encodeURIComponent(t)}/`}>#{t}</a>)}
