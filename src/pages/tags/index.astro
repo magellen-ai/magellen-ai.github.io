@@ -2,13 +2,14 @@
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 
-const [posts, notes] = await Promise.all([
+const [posts, notes, translations] = await Promise.all([
   getCollection('posts', ({ data }) => !data.draft),
   getCollection('notes', ({ data }) => !data.draft),
+  getCollection('translations', ({ data }) => !data.draft),
 ]);
 
 const tagCount = new Map();
-for (const entry of [...posts, ...notes]) {
+for (const entry of [...posts, ...notes, ...translations]) {
   for (const t of entry.data.tags) {
     tagCount.set(t, (tagCount.get(t) ?? 0) + 1);
   }

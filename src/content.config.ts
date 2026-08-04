@@ -23,4 +23,17 @@ const notes = defineCollection({
   }),
 });
 
-export const collections = { posts, notes };
+
+const translations = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    date: z.coerce.date(),
+    tags: z.array(z.string()).default([]),
+    summary: z.string().optional(),
+    original: z.string().url().optional(),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { posts, notes, translations };

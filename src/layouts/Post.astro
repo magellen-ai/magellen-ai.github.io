@@ -7,9 +7,10 @@ interface Props {
   tags: string[];
   summary?: string;
   source?: string;
+  original?: string;
 }
 
-const { title, date, tags, summary, source } = Astro.props;
+const { title, date, tags, summary, source, original } = Astro.props;
 const formatted = date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
 ---
 
@@ -19,6 +20,7 @@ const formatted = date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'lo
     <p class="post-meta">
       {formatted}
       {source && <> · 来源:{source}</>}
+      {original && <> · <a href={original}>原文 ↗</a></>}
     </p>
     <div class="tag-list" style="margin-bottom:1.5rem">
       {tags.map((t) => <a href={`/tags/${encodeURIComponent(t)}/`}>#{t}</a>)}

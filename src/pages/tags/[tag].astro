@@ -3,22 +3,25 @@ import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
-  const [posts, notes] = await Promise.all([
+  const [posts, notes, translations] = await Promise.all([
     getCollection('posts', ({ data }) => !data.draft),
     getCollection('notes', ({ data }) => !data.draft),
+    getCollection('translations', ({ data }) => !data.draft),
   ]);
-  const tagSet = new Set([...posts, ...notes].flatMap((e) => e.data.tags));
+  const tagSet = new Set([...posts, ...notes, ...translations].flatMap((e) => e.data.tags));
   return [...tagSet].map((tag) => ({ params: { tag } }));
 }
 
 const { tag } = Astro.props;
-const [posts, notes] = await Promise.all([
+const [posts, notes, translations] = await Promise.all([
   getCollection('posts', ({ data }) => !data.draft && data.tags.includes(tag)),
   getCollection('notes', ({ data }) => !data.draft && data.tags.includes(tag)),
+  getCollection('translations', ({ data }) => !data.draft && data.tags.includes(tag)),
 ]);
 const sortByDate = (a, b) => b.data.date.valueOf() - a.data.date.valueOf();
 posts.sort(sortByDate);
 notes.sort(sortByDate);
+translations.sort(sortByDate);
 ---
 
 <Base title={`#${tag} · Magellen 的博客`}>
@@ -40,6 +43,16 @@ notes.sort(sortByDate);
       <h2><a href={`/notes/${note.id.replace(/\.md$/, '')}/`}>{note.data.title}</a></h2>
       <p class="post-meta">
         {note.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+      </p>
+    </article>
+  ))}
+
+  {translations.length > 0 && <h2>精翻</h2>}
+  {translations.map((item) => (
+    <article class="post">
+      <h2><a href={`/translations/${item.id.replace(/\.md$/, '')}/`}>{item.data.title}</a></h2>
+      <p class="post-meta">
+        {item.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
       </p>
     </article>
   ))}

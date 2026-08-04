@@ -23,6 +23,7 @@ const OBSIDIAN = process.env.OBSIDIAN_DIR || join(homedir(), 'Obsidian_data');
 const SOURCES = [
   { dir: join(OBSIDIAN, '05_输出/magellen-kol/06_平台适配/blog'), target: 'posts' },
   { dir: join(OBSIDIAN, '05_输出/博客花园'), target: 'notes' },
+  { dir: join(OBSIDIAN, '05_输出/精翻'), target: 'translations' },
 ];
 
 const REQUIRED = ['title', 'date'];
