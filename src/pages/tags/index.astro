@@ -1,0 +1,27 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const [posts, notes] = await Promise.all([
+  getCollection('posts', ({ data }) => !data.draft),
+  getCollection('notes', ({ data }) => !data.draft),
+]);
+
+const tagCount = new Map();
+for (const entry of [...posts, ...notes]) {
+  for (const t of entry.data.tags) {
+    tagCount.set(t, (tagCount.get(t) ?? 0) + 1);
+  }
+}
+const tags = [...tagCount.entries()].sort((a, b) => b[1] - a[1]);
+---
+
+<Base title="标签 · Magellen 的博客">
+  <h1>标签</h1>
+  {tags.length === 0 && <p class="empty">还没有标签。</p>}
+  <div class="tag-list" style="gap:0.6rem">
+    {tags.map(([tag, count]) => (
+      <a href={`/tags/${encodeURIComponent(tag)}/`} style="font-size:0.9rem">#{tag} ({count})</a>
+    ))}
+  </div>
+</Base>

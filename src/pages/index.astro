@@ -1,0 +1,39 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('posts', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const recent = posts.slice(0, 5);
+---
+
+<Base title="Magellen 的博客">
+  <section style="margin-bottom:3rem">
+    <h1 style="margin-bottom:0.25rem">Magellen 的博客</h1>
+    <p class="post-meta" style="font-size:1rem">
+      程序员精进 · 效率工具 · AI 与量化。用 Obsidian 管理知识,把想清楚的事情写下来。
+    </p>
+    <p>
+      关注 <a href="/posts/">文章</a>(成品长文)、<a href="/notes/">花园</a>(公开思考碎片)、
+      <a href="/rss.xml">RSS 订阅</a>。
+    </p>
+  </section>
+
+  <h2>最新文章</h2>
+  {recent.length === 0 && <p class="empty">还没有文章。</p>}
+  {recent.map((post) => (
+    <article class="post">
+      <h2><a href={`/posts/${post.id}/`}>{post.data.title}</a></h2>
+      <p class="post-meta">
+        {post.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+        {post.data.series && <> · 系列:{post.data.series}</>}
+      </p>
+      {post.data.summary && <p class="post-summary">{post.data.summary}</p>}
+      <div class="tag-list">
+        {post.data.tags.map((t) => <a href={`/tags/${encodeURIComponent(t)}/`}>#{t}</a>)}
+      </div>
+    </article>
+  ))}
+
+  <p style="margin-top:2rem"><a href="/posts/">全部文章 →</a></p>
+</Base>

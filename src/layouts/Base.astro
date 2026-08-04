@@ -1,0 +1,42 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = 'Magellen 的博客', description = '程序员精进、效率工具、个人成长' } = Astro.props;
+const SITE = new URL(Astro.site ?? 'http://localhost:4321');
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" title="Magellen 的博客" href={new URL('/rss.xml', SITE)} />
+  </head>
+  <body>
+    <header class="site">
+      <nav>
+        <a class="brand" href="/">Magellen</a>
+        <a href="/posts/">文章</a>
+        <a href="/notes/">花园</a>
+        <a href="/tags/">标签</a>
+        <a href="/about/">关于</a>
+        <a href="/rss.xml">RSS</a>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="site">
+      <p>© {new Date().getFullYear()} Magellen · 用 <a href="https://astro.build">Astro</a> 构建 · 内容来自我的 Obsidian 知识库</p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,46 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const [posts, notes] = await Promise.all([
+    getCollection('posts', ({ data }) => !data.draft),
+    getCollection('notes', ({ data }) => !data.draft),
+  ]);
+  const tagSet = new Set([...posts, ...notes].flatMap((e) => e.data.tags));
+  return [...tagSet].map((tag) => ({ params: { tag } }));
+}
+
+const { tag } = Astro.props;
+const [posts, notes] = await Promise.all([
+  getCollection('posts', ({ data }) => !data.draft && data.tags.includes(tag)),
+  getCollection('notes', ({ data }) => !data.draft && data.tags.includes(tag)),
+]);
+const sortByDate = (a, b) => b.data.date.valueOf() - a.data.date.valueOf();
+posts.sort(sortByDate);
+notes.sort(sortByDate);
+---
+
+<Base title={`#${tag} · Magellen 的博客`}>
+  <h1>#{tag}</h1>
+
+  {posts.length > 0 && <h2>文章</h2>}
+  {posts.map((post) => (
+    <article class="post">
+      <h2><a href={`/posts/${post.id}/`}>{post.data.title}</a></h2>
+      <p class="post-meta">
+        {post.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+      </p>
+    </article>
+  ))}
+
+  {notes.length > 0 && <h2>花园</h2>}
+  {notes.map((note) => (
+    <article class="post">
+      <h2><a href={`/notes/${note.id}/`}>{note.data.title}</a></h2>
+      <p class="post-meta">
+        {note.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+      </p>
+    </article>
+  ))}
+</Base>

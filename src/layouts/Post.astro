@@ -1,0 +1,28 @@
+---
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  date: Date;
+  tags: string[];
+  summary?: string;
+  source?: string;
+}
+
+const { title, date, tags, summary, source } = Astro.props;
+const formatted = date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<Base title={`${title} · Magellen 的博客`} description={summary}>
+  <article class="prose">
+    <h1>{title}</h1>
+    <p class="post-meta">
+      {formatted}
+      {source && <> · <a href={source}>来源笔记</a></>}
+    </p>
+    <div class="tag-list" style="margin-bottom:1.5rem">
+      {tags.map((t) => <a href={`/tags/${encodeURIComponent(t)}/`}>#{t}</a>)}
+    </div>
+    <slot />
+  </article>
+</Base>
