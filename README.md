@@ -2,7 +2,7 @@
 
 个人博客站点,基于 [Astro](https://astro.build),部署到 GitHub Pages。
 
-- **线上地址**: https://greenhands-always.github.io/
+- **线上地址**: https://magellen-ai.github.io/
 - **文章** `/posts/`:来自 Obsidian `05_输出/magellen-kol/06_平台适配/blog/`,走完整写作工作流的成品长文。
 - **花园** `/notes/`:来自 Obsidian `05_输出/博客花园/`,知识库精选快照,`[[双链]]` 在同步时转换为站内链接。
 - **RSS** `/rss.xml`:全站订阅输出。
@@ -30,9 +30,9 @@ npm run build    # 产物在 dist/
 
 ## 首次部署(已完成)
 
-repo 命名 `greenhands-always.github.io`(user site 方案,URL 无路径前缀);
+repo 命名 `magellen-ai.github.io`(user site 方案,URL 无路径前缀);
 repo Settings → Pages → Source 为 **GitHub Actions**;`astro.config.mjs` 中 `site` 为
-`https://greenhands-always.github.io`、`base` 为 `/`。
+`https://magellen-ai.github.io`、`base` 为 `/`。
 
 后续发布只需:Obsidian 写好 → `npm run sync` → `git push`。
 
