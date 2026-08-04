@@ -2,9 +2,21 @@
 import Base from '../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 
-const posts = (await getCollection('posts', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-const recent = posts.slice(0, 5);
+const [posts, notes, translations] = await Promise.all([
+  getCollection('posts', ({ data }) => !data.draft),
+  getCollection('notes', ({ data }) => !data.draft),
+  getCollection('translations', ({ data }) => !data.draft),
+]);
+
+const sortByDate = (a, b) => b.data.date.valueOf() - a.data.date.valueOf();
+posts.sort(sortByDate);
+notes.sort(sortByDate);
+translations.sort(sortByDate);
+
+const recentPosts = posts.slice(0, 5);
+const recentNotes = notes.slice(0, 3);
+const recentTranslations = translations.slice(0, 3);
+const fmt = (d) => d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
 ---
 
 <Base title="Magellen 的博客">
@@ -15,17 +27,17 @@ const recent = posts.slice(0, 5);
     </p>
     <p>
       关注 <a href="/posts/">文章</a>(成品长文)、<a href="/notes/">花园</a>(公开思考碎片)、
-      <a href="/rss.xml">RSS 订阅</a>。
+      <a href="/translations/">精翻</a>(外国文章精选翻译)、<a href="/rss.xml">RSS 订阅</a>。
     </p>
   </section>
 
   <h2>最新文章</h2>
-  {recent.length === 0 && <p class="empty">还没有文章。</p>}
-  {recent.map((post) => (
+  {recentPosts.length === 0 && <p class="empty">还没有文章。</p>}
+  {recentPosts.map((post) => (
     <article class="post">
       <h2><a href={`/posts/${post.id.replace(/\.md$/, '')}/`}>{post.data.title}</a></h2>
       <p class="post-meta">
-        {post.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+        {fmt(post.data.date)}
         {post.data.series && <> · 系列:{post.data.series}</>}
       </p>
       {post.data.summary && <p class="post-summary">{post.data.summary}</p>}
@@ -34,6 +46,29 @@ const recent = posts.slice(0, 5);
       </div>
     </article>
   ))}
+  <p style="margin-top:1rem"><a href="/posts/">全部文章 →</a></p>
 
-  <p style="margin-top:2rem"><a href="/posts/">全部文章 →</a></p>
+  <h2>最新花园</h2>
+  {recentNotes.length === 0 && <p class="empty">还没有花园笔记。</p>}
+  {recentNotes.map((note) => (
+    <article class="post">
+      <h2><a href={`/notes/${note.id.replace(/\.md$/, '')}/`}>{note.data.title}</a></h2>
+      <p class="post-meta">{fmt(note.data.date)}</p>
+    </article>
+  ))}
+  <p style="margin-top:1rem"><a href="/notes/">全部花园 →</a></p>
+
+  <h2>最新精翻</h2>
+  {recentTranslations.length === 0 && <p class="empty">还没有翻译文章。</p>}
+  {recentTranslations.map((item) => (
+    <article class="post">
+      <h2><a href={`/translations/${item.id.replace(/\.md$/, '')}/`}>{item.data.title}</a></h2>
+      <p class="post-meta">
+        {fmt(item.data.date)}
+        {item.data.original && <> · <a href={item.data.original}>原文 ↗</a></>}
+      </p>
+      {item.data.summary && <p class="post-summary">{item.data.summary}</p>}
+    </article>
+  ))}
+  <p style="margin-top:1rem"><a href="/translations/">全部精翻 →</a></p>
 </Base>
