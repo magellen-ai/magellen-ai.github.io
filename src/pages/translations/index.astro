@@ -7,20 +7,24 @@ const items = (await getCollection('translations', ({ data }) => !data.draft))
 ---
 
 <Base title="精翻 · Magellen 的博客">
-  <h1>精翻</h1>
-  <p class="post-meta">外国文章精选翻译:沉浸式中英对照,保留原文链接。内容来自我的 RSS 阅读流。</p>
+  <header class="page-header">
+    <h1 class="page-title">精翻</h1>
+    <p class="page-description">外国文章精选翻译:沉浸式中英对照,保留原文链接。内容来自我的 RSS 阅读流。</p>
+  </header>
   {items.length === 0 && <p class="empty">还没有翻译文章。</p>}
-  {items.map((item) => (
-    <article class="post">
-      <h2><a href={`/translations/${item.id.replace(/\.md$/, '')}/`}>{item.data.title}</a></h2>
-      <p class="post-meta">
-        {item.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
-        {item.data.original && <> · <a href={item.data.original}>原文 ↗</a></>}
-      </p>
-      {item.data.summary && <p class="post-summary">{item.data.summary}</p>}
-      <div class="tag-list">
-        {item.data.tags.map((t) => <a href={`/tags/${encodeURIComponent(t)}/`}>#{t}</a>)}
-      </div>
-    </article>
-  ))}
+  <div class="content-list">
+    {items.map((item) => (
+      <article class="content-card">
+        <h2 class="content-title"><a href={`/translations/${item.id.replace(/\.md$/, '')}/`}>{item.data.title}</a></h2>
+        <p class="post-meta">
+          {item.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+          {item.data.original && <> · <a href={item.data.original}>原文 ↗</a></>}
+        </p>
+        {item.data.summary && <p class="post-summary">{item.data.summary}</p>}
+        <div class="tag-list">
+          {item.data.tags.map((t) => <a href={`/tags/${encodeURIComponent(t)}/`}>#{t}</a>)}
+        </div>
+      </article>
+    ))}
+  </div>
 </Base>

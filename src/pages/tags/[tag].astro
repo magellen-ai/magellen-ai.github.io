@@ -2,6 +2,8 @@
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 
+type DatedEntry = { data: { date: Date } };
+
 export async function getStaticPaths() {
   const [posts, notes, translations] = await Promise.all([
     getCollection('posts', ({ data }) => !data.draft),
@@ -18,42 +20,63 @@ const [posts, notes, translations] = await Promise.all([
   getCollection('notes', ({ data }) => !data.draft && data.tags.includes(tag)),
   getCollection('translations', ({ data }) => !data.draft && data.tags.includes(tag)),
 ]);
-const sortByDate = (a, b) => b.data.date.valueOf() - a.data.date.valueOf();
+const sortByDate = (a: DatedEntry, b: DatedEntry) => b.data.date.valueOf() - a.data.date.valueOf();
 posts.sort(sortByDate);
 notes.sort(sortByDate);
 translations.sort(sortByDate);
 ---
 
 <Base title={`#${tag} · Magellen 的博客`}>
-  <h1>#{tag}</h1>
+  <header class="page-header">
+    <h1 class="page-title">#{tag}</h1>
+    <p class="page-description">包含此标签的文章、花园笔记和精翻。</p>
+  </header>
 
-  {posts.length > 0 && <h2>文章</h2>}
-  {posts.map((post) => (
-    <article class="post">
-      <h2><a href={`/posts/${post.id.replace(/\.md$/, '')}/`}>{post.data.title}</a></h2>
-      <p class="post-meta">
-        {post.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
-      </p>
-    </article>
-  ))}
+  {posts.length > 0 && (
+    <section class="content-section">
+      <h2 class="section-title">文章 <small>({posts.length})</small></h2>
+      <div class="content-list">
+        {posts.map((post) => (
+          <article class="content-card">
+            <h3 class="content-title"><a href={`/posts/${post.id.replace(/\.md$/, '')}/`}>{post.data.title}</a></h3>
+            <p class="post-meta">
+              {post.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </p>
+          </article>
+        ))}
+      </div>
+    </section>
+  )}
 
-  {notes.length > 0 && <h2>花园</h2>}
-  {notes.map((note) => (
-    <article class="post">
-      <h2><a href={`/notes/${note.id.replace(/\.md$/, '')}/`}>{note.data.title}</a></h2>
-      <p class="post-meta">
-        {note.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
-      </p>
-    </article>
-  ))}
+  {notes.length > 0 && (
+    <section class="content-section">
+      <h2 class="section-title">花园 <small>({notes.length})</small></h2>
+      <div class="content-list">
+        {notes.map((note) => (
+          <article class="content-card">
+            <h3 class="content-title"><a href={`/notes/${note.id.replace(/\.md$/, '')}/`}>{note.data.title}</a></h3>
+            <p class="post-meta">
+              {note.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </p>
+          </article>
+        ))}
+      </div>
+    </section>
+  )}
 
-  {translations.length > 0 && <h2>精翻</h2>}
-  {translations.map((item) => (
-    <article class="post">
-      <h2><a href={`/translations/${item.id.replace(/\.md$/, '')}/`}>{item.data.title}</a></h2>
-      <p class="post-meta">
-        {item.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
-      </p>
-    </article>
-  ))}
+  {translations.length > 0 && (
+    <section class="content-section">
+      <h2 class="section-title">精翻 <small>({translations.length})</small></h2>
+      <div class="content-list">
+        {translations.map((item) => (
+          <article class="content-card">
+            <h3 class="content-title"><a href={`/translations/${item.id.replace(/\.md$/, '')}/`}>{item.data.title}</a></h3>
+            <p class="post-meta">
+              {item.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </p>
+          </article>
+        ))}
+      </div>
+    </section>
+  )}
 </Base>

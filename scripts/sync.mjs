@@ -18,6 +18,7 @@
 import { readdirSync, readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { homedir } from 'node:os';
+import { stripDuplicateLeadingTitle } from './markdown.mjs';
 
 const OBSIDIAN = process.env.OBSIDIAN_DIR || join(homedir(), 'Obsidian_data');
 const SOURCES = [
@@ -36,7 +37,7 @@ const isContentFile = (f) => f.endsWith('.md') && f !== 'README.md' && !f.starts
  * 否则转纯文本(保留别名或目标名)。
  */
 function convertWikiLinks(content, knownNotes) {
-  return content.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (m, target, alias) => {
+  return content.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_match, target, alias) => {
     const clean = target.trim();
     const display = (alias ?? target).trim();
     if (knownNotes.has(clean)) {
@@ -82,9 +83,11 @@ function syncDir(srcDir, targetDir, knownNotes) {
   if (existsSync(srcDir)) {
     for (const f of readdirSync(srcDir)) {
       if (!isContentFile(f)) continue;
-      const content = convertWikiLinks(readFileSync(join(srcDir, f), 'utf8'), knownNotes);
-      const { data } = parseFrontmatter(content);
+      const converted = convertWikiLinks(readFileSync(join(srcDir, f), 'utf8'), knownNotes);
+      const { data, body } = parseFrontmatter(converted);
       if (!validate(join(srcDir, f), data)) continue;
+      const frontmatter = converted.slice(0, converted.length - body.length);
+      const content = frontmatter + stripDuplicateLeadingTitle(body, data.title);
       writeFileSync(join(targetAbs, f), content, 'utf8');
       copied++;
     }

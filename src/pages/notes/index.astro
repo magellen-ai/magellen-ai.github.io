@@ -7,22 +7,26 @@ const notes = (await getCollection('notes', ({ data }) => !data.draft))
 ---
 
 <Base title="花园 · Magellen 的博客">
-  <h1>花园</h1>
-  <p class="post-meta">
-    从知识库精选的公开思考:概念、原理、方法碎片。发布即快照,不随知识库变动。笔记之间通过
-    <code>[[双链]]</code> 相连。
-  </p>
+  <header class="page-header">
+    <h1 class="page-title">花园</h1>
+    <p class="page-description">
+      从知识库精选的公开思考:概念、原理、方法碎片。发布即快照,不随知识库变动。笔记之间通过
+      <code>[[双链]]</code> 相连。
+    </p>
+  </header>
   {notes.length === 0 && <p class="empty">还没有花园笔记。</p>}
-  {notes.map((note) => (
-    <article class="post">
-      <h2><a href={`/notes/${note.id.replace(/\.md$/, '')}/`}>{note.data.title}</a></h2>
-      <p class="post-meta">
-        {note.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
-        {note.data.source && <> · 来源:{note.data.source}</>}
-      </p>
-      <div class="tag-list">
-        {note.data.tags.map((t) => <a href={`/tags/${encodeURIComponent(t)}/`}>#{t}</a>)}
-      </div>
-    </article>
-  ))}
+  <div class="content-list">
+    {notes.map((note) => (
+      <article class="content-card">
+        <h2 class="content-title"><a href={`/notes/${note.id.replace(/\.md$/, '')}/`}>{note.data.title}</a></h2>
+        <p class="post-meta">
+          {note.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+          {note.data.source && <> · 来源:{note.data.source}</>}
+        </p>
+        <div class="tag-list">
+          {note.data.tags.map((t) => <a href={`/tags/${encodeURIComponent(t)}/`}>#{t}</a>)}
+        </div>
+      </article>
+    ))}
+  </div>
 </Base>

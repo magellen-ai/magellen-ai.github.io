@@ -5,8 +5,6 @@ tags: [llm, agent, harness]
 source: "02_领域笔记/大模型/wiki/Agent/Agent Harness/Harness 是底盘 模型是引擎.md"
 ---
 
-# Harness 是底盘 模型是引擎
-
 > Agent Harness 是底盘；模型是引擎。
 
 这句话不是说模型不重要，而是说在 agent 场景里，模型能力会被工具、上下文、环境、评分、预算和执行循环共同放大或折损。

@@ -6,8 +6,6 @@ summary: "启动代理很容易,但判断力不可并行。Addy Osmani 谈 agent
 original: "https://addyosmani.com/blog/orchestration-tax/"
 ---
 
-# 编排税(The Orchestration Tax)
-
 ## 全文总结
 
 本文探讨了在使用多个AI代理（Agents）开发时出现的“编排税”（Orchestration Tax）问题。作者指出，虽然启动多个代理非常容易，但人类开发者作为系统的唯一串行处理器，其认知带宽无法并行化。所有判断、代码审查、解决冲突等关键工作仍需通过人类这一“瓶颈”完成。这导致运行更多代理并不能带来成比例的生产力提升，反而可能因频繁的上下文切换和无限增长的任务队列而导致疲劳与代码质量下降。

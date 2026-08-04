@@ -36,12 +36,13 @@ header.site nav {
   margin: 0 auto;
   padding: 0 1rem;
   display: flex;
-  gap: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
   align-items: baseline;
 }
 header.site .brand { font-weight: 700; font-size: 1.1rem; color: var(--fg); }
 header.site .brand:hover { text-decoration: none; }
-header.site nav a { color: var(--muted); font-size: 0.95rem; }
+header.site nav a { color: var(--muted); font-size: 0.95rem; white-space: nowrap; }
 
 main {
   max-width: var(--max-width);
@@ -49,15 +50,69 @@ main {
   padding: 0 1rem 4rem;
 }
 
-article.post { margin-bottom: 2.5rem; }
-article.post h2 { margin-bottom: 0.25rem; font-size: 1.35rem; }
-article.post h2 a { color: var(--fg); }
+.page-header {
+  margin-bottom: 2.5rem;
+}
+.page-title {
+  font-size: 2rem;
+  font-weight: 750;
+  line-height: 1.25;
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 3px solid var(--fg);
+}
+.page-description {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+.content-section {
+  margin-top: 2.75rem;
+}
+.section-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 0 0 1rem;
+  padding: 0.35rem 0.7rem;
+  border-left: 4px solid var(--accent);
+  background: #faf5ef;
+}
+.section-title small {
+  color: var(--muted);
+  font-size: 0.75em;
+  font-weight: 500;
+}
+.content-list {
+  display: grid;
+  gap: 0;
+}
+.content-card {
+  margin: 0;
+  padding: 1rem 0 1.15rem;
+  border-bottom: 1px solid var(--border);
+}
+.content-card:first-child { padding-top: 0; }
+.content-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.45;
+  margin: 0 0 0.3rem;
+}
+.content-title a { color: var(--fg); }
+.content-title a:hover { color: var(--accent); }
 .post-meta {
   color: var(--muted);
-  font-size: 0.85rem;
-  margin-bottom: 0.5rem;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  margin: 0 0 0.45rem;
 }
-.post-summary { color: var(--muted); margin: 0.25rem 0 0; }
+.post-summary { color: var(--muted); margin: 0.35rem 0 0.6rem; }
+.section-footer { margin: 1rem 0 0; font-size: 0.9rem; }
+.tag-cloud { gap: 0.65rem; }
+.tag-cloud a { font-size: 0.9rem; }
+
+.prose .post-meta { margin-bottom: 0.5rem; }
 
 .prose { font-size: 1.02rem; }
 .prose h1 {
@@ -128,6 +183,15 @@ footer.site {
   border-top: 1px solid var(--border);
   color: var(--muted);
   font-size: 0.85rem;
+}
+
+@media (max-width: 520px) {
+  header.site { padding: 0.75rem 0; }
+  header.site nav { gap: 0.35rem 0.9rem; }
+  header.site nav a { font-size: 0.88rem; }
+  header.site .brand { font-size: 1rem; }
+  .page-title { font-size: 1.75rem; }
+  .content-section { margin-top: 2.25rem; }
 }
 
 .empty { color: var(--muted); }

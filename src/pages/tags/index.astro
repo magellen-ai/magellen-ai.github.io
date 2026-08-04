@@ -18,11 +18,14 @@ const tags = [...tagCount.entries()].sort((a, b) => b[1] - a[1]);
 ---
 
 <Base title="标签 · Magellen 的博客">
-  <h1>标签</h1>
+  <header class="page-header">
+    <h1 class="page-title">标签</h1>
+    <p class="page-description">按主题浏览文章、花园笔记和精翻。</p>
+  </header>
   {tags.length === 0 && <p class="empty">还没有标签。</p>}
-  <div class="tag-list" style="gap:0.6rem">
+  <div class="tag-list tag-cloud">
     {tags.map(([tag, count]) => (
-      <a href={`/tags/${encodeURIComponent(tag)}/`} style="font-size:0.9rem">#{tag} ({count})</a>
+      <a href={`/tags/${encodeURIComponent(tag)}/`}>#{tag} ({count})</a>
     ))}
   </div>
 </Base>

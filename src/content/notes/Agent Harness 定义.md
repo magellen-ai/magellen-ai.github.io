@@ -5,8 +5,6 @@ tags: [llm, agent, harness]
 source: "02_领域笔记/大模型/wiki/Agent/Agent Harness/Agent Harness 定义.md"
 ---
 
-# Agent Harness 定义
-
 Agent Harness 是围绕 LLM Agent 搭建的一层基础设施: 负责构造任务环境、驱动多轮交互、记录完整轨迹、并在可复现条件下对结果打分与执行任务。
 
 ## 与传统 test harness 的类比
