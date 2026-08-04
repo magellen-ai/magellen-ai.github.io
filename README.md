@@ -2,8 +2,9 @@
 
 个人博客站点,基于 [Astro](https://astro.build),部署到 GitHub Pages。
 
+- **线上地址**: https://greenhands-always.github.io/
 - **文章** `/posts/`:来自 Obsidian `05_输出/magellen-kol/06_平台适配/blog/`,走完整写作工作流的成品长文。
-- **花园** `/notes/`:来自 Obsidian `05_输出/博客花园/`,知识库精选快照,支持 `[[双链]]` 内联网络。
+- **花园** `/notes/`:来自 Obsidian `05_输出/博客花园/`,知识库精选快照,`[[双链]]` 在同步时转换为站内链接。
 - **RSS** `/rss.xml`:全站订阅输出。
 
 ## 内容流
@@ -15,7 +16,7 @@ Obsidian 05_输出/博客花园/ ─┘
 ```
 
 1. 在 Obsidian 里写好/适配文章(frontmatter: `title` / `date` / `tags` / `summary`)。
-2. `npm run sync` —— 从 Obsidian 镜像同步内容到 `src/content/`,校验 frontmatter。
+2. `npm run sync` —— 从 Obsidian 镜像同步内容到 `src/content/`,校验 frontmatter,并把花园 `[[双链]]` 转为站内链接(未发布目标降级为纯文本)。
 3. `git add . && git commit && git push` —— 自动构建部署,几分钟内生效。
 
 ## 本地开发
@@ -27,19 +28,13 @@ npm run dev      # http://localhost:4321
 npm run build    # 产物在 dist/
 ```
 
-## 首次部署(GitHub Pages)
+## 首次部署(已完成)
 
-1. 把本目录推到 GitHub 新 repo(建议命名 `blog`):
-   ```bash
-   git init && git add . && git commit -m "init blog"
-   git remote add origin git@github.com:<你的用户名>/blog.git
-   git push -u origin main
-   ```
-2. GitHub repo Settings → Pages → Source 选 **GitHub Actions**。
-3. 改 `astro.config.mjs`:
-   - `site`: `https://<你的用户名>.github.io`
-   - `base`: repo 名为 `blog` 时保持 `'/'`;其他名字改为 `/<repo名>/`
-4. 再 push 一次触发部署,Pages 页会显示站点 URL。
+repo 命名 `greenhands-always.github.io`(user site 方案,URL 无路径前缀);
+repo Settings → Pages → Source 为 **GitHub Actions**;`astro.config.mjs` 中 `site` 为
+`https://greenhands-always.github.io`、`base` 为 `/`。
+
+后续发布只需:Obsidian 写好 → `npm run sync` → `git push`。
 
 ## 发布节奏
 
@@ -57,6 +52,6 @@ src/
 ├── layouts/              # Base / Post 布局
 ├── pages/                # 首页、归档、标签、关于、RSS、404
 └── styles/global.css
-scripts/sync.mjs          # Obsidian → content 同步脚本
+scripts/sync.mjs          # Obsidian → content 同步脚本(wikilink 转换、frontmatter 校验)
 .github/workflows/deploy.yml
 ```
