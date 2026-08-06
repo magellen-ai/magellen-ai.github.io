@@ -1,33 +1,14 @@
 ---
 import Base from '../layouts/Base.astro';
+import { getEntry, render } from 'astro:content';
+const page = await getEntry('pages', '关于');
+if (!page) throw new Error('缺少博客页面源: 关于.md');
+const { Content } = await render(page);
 ---
-
-<Base title="关于 · Magellen 的博客" description="关于我和这个博客">
+<Base title={`${page.data.title} · Magellen 的博客`} description={page.data.description}>
   <header class="page-header">
-    <h1 class="page-title">关于</h1>
-    <p class="page-description">Hi,我是 Magellen,一个新手开发者,关注程序员精进、效率工具、AI 与量化投资。</p>
+    <h1 class="page-title">{page.data.title}</h1>
+    <div class="page-description">{page.data.description}</div>
   </header>
-
-  <section class="content-section">
-    <h2 class="section-title">这个博客是什么</h2>
-    <p>
-      文章(<a href="/posts/">/posts</a>)是走过完整写作工作流的成品长文;
-      花园(<a href="/notes/">/notes</a>)是从我的 Obsidian 知识库精选的公开思考;
-      精翻(<a href="/translations/">/translations</a>)是从 RSS 阅读流中精选的外国文章翻译。
-      所有内容先在知识库中沉淀,再发布到这里,发布即快照。
-    </p>
-  </section>
-
-  <section class="content-section">
-    <h2 class="section-title">订阅</h2>
-    <p>通过 <a href="/rss.xml">RSS</a> 订阅本站更新。</p>
-  </section>
-
-  <section class="content-section">
-    <h2 class="section-title">其他去处</h2>
-    <ul>
-      <li><a href="https://kv57sk4imd.feishu.cn/wiki/F36EwpIsDiSZCdk9aSecgl9Qnnd?fromScene=spaceOverview">飞书知识库:不可替代:大颠覆时代的生存之道</a></li>
-      <li><a href="https://gitee.com/greenhands99/computer-system-learning-demo">计算机学习 demo 代码仓库</a></li>
-    </ul>
-  </section>
+  <article class="prose page-content"><Content /></article>
 </Base>

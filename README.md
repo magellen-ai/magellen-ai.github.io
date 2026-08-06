@@ -3,16 +3,20 @@
 个人博客站点,基于 [Astro](https://astro.build),部署到 GitHub Pages。博客仓库物理位于 Obsidian 知识库的 `00_system/blog/`,但保留独立 Git 仓库和独立部署边界。
 
 - **线上地址**: https://magellen-ai.github.io/
-- **文章** `/posts/`:来自 Obsidian `05_输出/magellen-kol/06_平台适配/blog/`,走完整写作工作流的成品长文。
-- **花园** `/notes/`:来自 Obsidian `05_输出/博客花园/`,知识库精选快照,`[[双链]]` 在同步时转换为站内链接。
+- **文章** `/posts/`:来自 Obsidian `05_输出/博客/文章/`,走完整写作工作流的成品长文。
+- **花园** `/notes/`:来自 Obsidian `05_输出/博客/花园/`,知识库精选快照,`[[双链]]` 在同步时转换为站内链接。
+- **精翻** `/translations/`:来自 Obsidian `05_输出/博客/精翻/`,外国文章精选翻译。
+- **页面**:来自 Obsidian `05_输出/博客/页面/`,首页、归档说明和关于页等手工 Markdown 文案。
 - **RSS** `/rss.xml`:全站订阅输出。
 
 ## 内容流
 
-```text
-Obsidian 05_输出/...blog/ ─┐
-                           ├─ npm run sync ─→ src/content/ ─→ git push ─→ GitHub Actions ─→ GitHub Pages
-Obsidian 05_输出/博客花园/ ─┘
+```
+Obsidian 05_输出/博客/文章/ ─┐
+Obsidian 05_输出/博客/花园/ ─┤
+Obsidian 05_输出/博客/精翻/ ─┤
+Obsidian 05_输出/博客/页面/ ─┘
+                                  ├─ npm run sync ─→ src/content/ ─→ git push ─→ GitHub Actions ─→ GitHub Pages
 ```
 
 1. 在 Obsidian 里写好/适配文章(frontmatter: `title` / `date` / `tags` / `summary`)。
@@ -39,16 +43,18 @@ repo Settings → Pages → Source 为 **GitHub Actions**;`astro.config.mjs` 中
 ## 发布节奏
 
 - 文章:周级,配合 333 稳定输出法;质量门槛在 Obsidian 侧(magellen-kol 工作流)已经卡过。
-- 花园:有想公开的笔记就发,快照制,更新博客需更新 `05_输出/博客花园/` 里的副本再 push。
+- 花园:有想公开的笔记就发,快照制,更新博客需更新 `05_输出/博客/花园/` 里的副本再 push。
+- 页面:直接编辑 `05_输出/博客/页面/*.md`,同步后更新首页、归档说明和关于页。
 
 ## 目录结构
 
 ```text
-src/
-├── content.config.ts     # posts/notes 的 frontmatter schema
-├── content/
-│   ├── posts/            # 文章(同步产物,勿手改)
-│   └── notes/            # 花园(同步产物,勿手改)
+├── content.config.ts     # posts/notes/translations/pages 的 frontmatter schema
+├── content/              # 同步产物,勿手改
+│   ├── posts/            # 文章
+│   ├── notes/            # 花园
+│   ├── translations/    # 精翻
+│   └── pages/            # 手工页面
 ├── layouts/              # Base / Post 布局
 ├── pages/                # 首页、归档、标签、关于、RSS、404
 └── styles/global.css

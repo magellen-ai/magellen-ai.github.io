@@ -1,19 +1,7 @@
 #!/usr/bin/env node
 /**
- * 从 Obsidian 知识库同步博客内容到 Astro content collections。
- *
- * 源目录(在 Obsidian 库内):
- *   05_输出/magellen-kol/06_平台适配/blog/  -> src/content/posts/   (成品文章)
- *   05_输出/博客花园/                       -> src/content/notes/   (花园快照)
- *
- * 规则:
- *   - 镜像同步:目标目录中源已不存在的文件会被删除。
- *   - 跳过 README.md 和以 . 开头的文件(源目录可放说明文件)。
- *   - frontmatter 校验:缺少必填字段(title/date)时报错退出。
- *   - 花园快照中的 [[wikilink]] 会保留(由 remark-wiki-link 渲染为 /notes/ 链接)。
- *   - draft: true 的文章/笔记不会被打包进站(但会保留在 content 目录)。
- *
- * 用法: npm run sync   (或 node scripts/sync.mjs)
+ * 从 Obsidian 的 05_输出/博客/ 同步内容到 Astro collections。
+ * 页面 Markdown 可直接在 Obsidian 中编辑;文章、花园和精翻为发布源。
  */
 import { readdirSync, readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -22,28 +10,19 @@ import { stripDuplicateLeadingTitle } from './markdown.mjs';
 
 const OBSIDIAN = process.env.OBSIDIAN_DIR || join(homedir(), 'Obsidian_data');
 const SOURCES = [
-  { dir: join(OBSIDIAN, '05_输出/magellen-kol/06_平台适配/blog'), target: 'posts' },
-  { dir: join(OBSIDIAN, '05_输出/博客花园'), target: 'notes' },
-  { dir: join(OBSIDIAN, '05_输出/精翻'), target: 'translations' },
+  { dir: join(OBSIDIAN, '05_输出/博客/文章'), target: 'posts', required: ['title', 'date'] },
+  { dir: join(OBSIDIAN, '05_输出/博客/花园'), target: 'notes', required: ['title', 'date'] },
+  { dir: join(OBSIDIAN, '05_输出/博客/精翻'), target: 'translations', required: ['title', 'date'] },
+  { dir: join(OBSIDIAN, '05_输出/博客/页面'), target: 'pages', required: ['title'] },
 ];
-
-const REQUIRED = ['title', 'date'];
 
 const isContentFile = (f) => f.endsWith('.md') && f !== 'README.md' && !f.startsWith('.');
 
-/**
- * 把 [[目标|别名]] / [[目标]] 转换为 markdown 链接。
- * 目标存在于花园源目录(已发布)时链接到 /notes/<页面名>;
- * 否则转纯文本(保留别名或目标名)。
- */
 function convertWikiLinks(content, knownNotes) {
   return content.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_match, target, alias) => {
     const clean = target.trim();
     const display = (alias ?? target).trim();
-    if (knownNotes.has(clean)) {
-      return `[${display}](/notes/${encodeURIComponent(clean)})`;
-    }
-    return display;
+    return knownNotes.has(clean) ? `[${display}](/notes/${encodeURIComponent(clean)})` : display;
   });
 }
 
@@ -54,67 +33,63 @@ function parseFrontmatter(content) {
   for (const line of m[1].split(/\r?\n/)) {
     const kv = line.match(/^([A-Za-z_][\w-]*):\s*(.*)$/);
     if (!kv) continue;
-    let v = kv[2].trim();
-    if (v.startsWith('[') && v.endsWith(']')) {
-      v = v.slice(1, -1).split(',').map((s) => s.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
+    let value = kv[2].trim();
+    if (value.startsWith('[') && value.endsWith(']')) {
+      value = value.slice(1, -1).split(',').map((s) => s.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
     } else {
-      v = v.replace(/^['"]|['"]$/g, '');
+      value = value.replace(/^['"]|['"]$/g, '');
     }
-    data[kv[1]] = v;
+    data[kv[1]] = value;
   }
   return { data, body: content.slice(m[0].length) };
 }
 
-function validate(file, data) {
-  const missing = REQUIRED.filter((k) => !data[k]);
-  if (missing.length > 0) {
-    console.error(`✗ ${file}: 缺少 frontmatter 字段: ${missing.join(', ')}`);
-    process.exitCode = 1;
-    return false;
-  }
-  return true;
+function validate(file, data, required) {
+  const missing = required.filter((key) => !data[key]);
+  if (missing.length === 0) return true;
+  console.error(`✗ ${file}: 缺少 frontmatter 字段: ${missing.join(', ')}`);
+  process.exitCode = 1;
+  return false;
 }
 
-function syncDir(srcDir, targetDir, knownNotes) {
+function syncDir(srcDir, targetDir, knownNotes, required) {
   const targetAbs = resolve(join('src/content', targetDir));
   mkdirSync(targetAbs, { recursive: true });
-
   let copied = 0;
+
   if (existsSync(srcDir)) {
-    for (const f of readdirSync(srcDir)) {
-      if (!isContentFile(f)) continue;
-      const converted = convertWikiLinks(readFileSync(join(srcDir, f), 'utf8'), knownNotes);
+    for (const file of readdirSync(srcDir)) {
+      if (!isContentFile(file)) continue;
+      const converted = convertWikiLinks(readFileSync(join(srcDir, file), 'utf8'), knownNotes);
       const { data, body } = parseFrontmatter(converted);
-      if (!validate(join(srcDir, f), data)) continue;
+      if (!validate(join(srcDir, file), data, required)) continue;
       const frontmatter = converted.slice(0, converted.length - body.length);
-      const content = frontmatter + stripDuplicateLeadingTitle(body, data.title);
-      writeFileSync(join(targetAbs, f), content, 'utf8');
+      const normalizedBody = targetDir === 'pages' ? body : stripDuplicateLeadingTitle(body, data.title);
+      writeFileSync(join(targetAbs, file), frontmatter + normalizedBody, 'utf8');
       copied++;
     }
   } else {
     console.warn(`! 源目录不存在: ${srcDir}`);
   }
 
-  // 清理目标中源已删除的文件
   const known = new Set(existsSync(srcDir) ? readdirSync(srcDir).filter(isContentFile) : []);
   let removed = 0;
-  for (const f of readdirSync(targetAbs)) {
-    if (!known.has(f)) {
-      rmSync(join(targetAbs, f));
+  for (const file of readdirSync(targetAbs)) {
+    if (!known.has(file)) {
+      rmSync(join(targetAbs, file));
       removed++;
     }
   }
   console.log(`✓ ${targetDir}: 同步 ${copied} 个文件,清理 ${removed} 个`);
 }
 
-// 花园源目录中的已发布笔记名(去 .md),用于 wikilink 转换
-const notesDir = join(OBSIDIAN, '05_输出/博客花园');
+const notesDir = join(OBSIDIAN, '05_输出/博客/花园');
 const knownNotes = new Set(
-  existsSync(notesDir) ? readdirSync(notesDir).filter(isContentFile).map((f) => f.replace(/\.md$/, '')) : []
+  existsSync(notesDir) ? readdirSync(notesDir).filter(isContentFile).map((file) => file.replace(/\.md$/, '')) : [],
 );
 
-for (const { dir, target } of SOURCES) {
-  syncDir(dir, target, knownNotes);
+for (const { dir, target, required } of SOURCES) {
+  syncDir(dir, target, knownNotes, required);
 }
 
 if (process.exitCode) {

@@ -1,31 +1,23 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { getCollection } from 'astro:content';
-
+import { getCollection, getEntry, render } from 'astro:content';
+const page = await getEntry('pages', '标签');
+if (!page) throw new Error('缺少博客页面源: 标签.md');
+const { Content } = await render(page);
 const [posts, notes, translations] = await Promise.all([
   getCollection('posts', ({ data }) => !data.draft),
   getCollection('notes', ({ data }) => !data.draft),
   getCollection('translations', ({ data }) => !data.draft),
 ]);
-
 const tagCount = new Map();
-for (const entry of [...posts, ...notes, ...translations]) {
-  for (const t of entry.data.tags) {
-    tagCount.set(t, (tagCount.get(t) ?? 0) + 1);
-  }
-}
+for (const entry of [...posts, ...notes, ...translations]) for (const tag of entry.data.tags) tagCount.set(tag, (tagCount.get(tag) ?? 0) + 1);
 const tags = [...tagCount.entries()].sort((a, b) => b[1] - a[1]);
 ---
-
-<Base title="标签 · Magellen 的博客">
+<Base title={`${page.data.title} · Magellen 的博客`} description={page.data.description}>
   <header class="page-header">
-    <h1 class="page-title">标签</h1>
-    <p class="page-description">按主题浏览文章、花园笔记和精翻。</p>
+    <h1 class="page-title">{page.data.title}</h1>
+    <div class="page-description"><Content /></div>
   </header>
   {tags.length === 0 && <p class="empty">还没有标签。</p>}
-  <div class="tag-list tag-cloud">
-    {tags.map(([tag, count]) => (
-      <a href={`/tags/${encodeURIComponent(tag)}/`}>#{tag} ({count})</a>
-    ))}
-  </div>
+  <div class="tag-list tag-cloud">{tags.map(([tag, count]) => <a href={`/tags/${encodeURIComponent(tag)}/`}>#{tag} ({count})</a>)}</div>
 </Base>

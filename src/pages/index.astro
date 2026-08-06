@@ -1,36 +1,28 @@
 ---
 import Base from '../layouts/Base.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 
 type DatedEntry = { data: { date: Date } };
-
+const page = await getEntry('pages', '首页');
+if (!page) throw new Error('缺少博客页面源: 首页.md');
+const { Content } = await render(page);
 const [posts, notes, translations] = await Promise.all([
   getCollection('posts', ({ data }) => !data.draft),
   getCollection('notes', ({ data }) => !data.draft),
   getCollection('translations', ({ data }) => !data.draft),
 ]);
-
 const sortByDate = (a: DatedEntry, b: DatedEntry) => b.data.date.valueOf() - a.data.date.valueOf();
-posts.sort(sortByDate);
-notes.sort(sortByDate);
-translations.sort(sortByDate);
-
+posts.sort(sortByDate); notes.sort(sortByDate); translations.sort(sortByDate);
 const recentPosts = posts.slice(0, 5);
 const recentNotes = notes.slice(0, 3);
 const recentTranslations = translations.slice(0, 3);
 const fmt = (d: Date) => d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
 ---
 
-<Base title="Magellen 的博客">
+<Base title={page.data.title} description={page.data.description}>
   <header class="page-header">
-    <h1 class="page-title">Magellen 的博客</h1>
-    <p class="page-description">
-      程序员精进 · 效率工具 · AI 与量化。用 Obsidian 管理知识,把想清楚的事情写下来。
-    </p>
-    <p>
-      关注 <a href="/posts/">文章</a>(成品长文)、<a href="/notes/">花园</a>(公开思考碎片)、
-      <a href="/translations/">精翻</a>(外国文章精选翻译)、<a href="/rss.xml">RSS 订阅</a>。
-    </p>
+    <h1 class="page-title">{page.data.title}</h1>
+    <div class="page-description"><Content /></div>
   </header>
 
   <section class="content-section">
@@ -40,14 +32,9 @@ const fmt = (d: Date) => d.toLocaleDateString('zh-CN', { year: 'numeric', month:
       {recentPosts.map((post) => (
         <article class="content-card">
           <h3 class="content-title"><a href={`/posts/${post.id.replace(/\.md$/, '')}/`}>{post.data.title}</a></h3>
-          <p class="post-meta">
-            {fmt(post.data.date)}
-            {post.data.series && <> · 系列:{post.data.series}</>}
-          </p>
+          <p class="post-meta">{fmt(post.data.date)}{post.data.series && <> · 系列:{post.data.series}</>}</p>
           {post.data.summary && <p class="post-summary">{post.data.summary}</p>}
-          <div class="tag-list">
-            {post.data.tags.map((t) => <a href={`/tags/${encodeURIComponent(t)}/`}>#{t}</a>)}
-          </div>
+          <div class="tag-list">{post.data.tags.map((t) => <a href={`/tags/${encodeURIComponent(t)}/`}>#{t}</a>)}</div>
         </article>
       ))}
     </div>
@@ -57,32 +44,25 @@ const fmt = (d: Date) => d.toLocaleDateString('zh-CN', { year: 'numeric', month:
   <section class="content-section">
     <h2 class="section-title">最新花园</h2>
     {recentNotes.length === 0 && <p class="empty">还没有花园笔记。</p>}
-    <div class="content-list">
-      {recentNotes.map((note) => (
-        <article class="content-card">
-          <h3 class="content-title"><a href={`/notes/${note.id.replace(/\.md$/, '')}/`}>{note.data.title}</a></h3>
-          <p class="post-meta">{fmt(note.data.date)}</p>
-        </article>
-      ))}
-    </div>
+    <div class="content-list">{recentNotes.map((note) => (
+      <article class="content-card">
+        <h3 class="content-title"><a href={`/notes/${note.id.replace(/\.md$/, '')}/`}>{note.data.title}</a></h3>
+        <p class="post-meta">{fmt(note.data.date)}</p>
+      </article>
+    ))}</div>
     <p class="section-footer"><a href="/notes/">全部花园 →</a></p>
   </section>
 
   <section class="content-section">
     <h2 class="section-title">最新精翻</h2>
     {recentTranslations.length === 0 && <p class="empty">还没有翻译文章。</p>}
-    <div class="content-list">
-      {recentTranslations.map((item) => (
-        <article class="content-card">
-          <h3 class="content-title"><a href={`/translations/${item.id.replace(/\.md$/, '')}/`}>{item.data.title}</a></h3>
-          <p class="post-meta">
-            {fmt(item.data.date)}
-            {item.data.original && <> · <a href={item.data.original}>原文 ↗</a></>}
-          </p>
-          {item.data.summary && <p class="post-summary">{item.data.summary}</p>}
-        </article>
-      ))}
-    </div>
+    <div class="content-list">{recentTranslations.map((item) => (
+      <article class="content-card">
+        <h3 class="content-title"><a href={`/translations/${item.id.replace(/\.md$/, '')}/`}>{item.data.title}</a></h3>
+        <p class="post-meta">{fmt(item.data.date)}{item.data.original && <> · <a href={item.data.original}>原文 ↗</a></>}</p>
+        {item.data.summary && <p class="post-summary">{item.data.summary}</p>}
+      </article>
+    ))}</div>
     <p class="section-footer"><a href="/translations/">全部精翻 →</a></p>
   </section>
 </Base>
