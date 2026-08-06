@@ -1,6 +1,6 @@
 # Magellen 博客
 
-个人博客站点,基于 [Astro](https://astro.build),部署到 GitHub Pages。
+个人博客站点,基于 [Astro](https://astro.build),部署到 GitHub Pages。博客仓库物理位于 Obsidian 知识库的 `00_system/blog/`,但保留独立 Git 仓库和独立部署边界。
 
 - **线上地址**: https://magellen-ai.github.io/
 - **文章** `/posts/`:来自 Obsidian `05_输出/magellen-kol/06_平台适配/blog/`,走完整写作工作流的成品长文。
