@@ -63,6 +63,7 @@ function syncDir(srcDir, targetDir, knownNotes, required) {
       const converted = convertWikiLinks(readFileSync(join(srcDir, file), 'utf8'), knownNotes);
       const { data, body } = parseFrontmatter(converted);
       if (!validate(join(srcDir, file), data, required)) continue;
+      if (data.draft === 'true' || data.draft === true) continue;
       const frontmatter = converted.slice(0, converted.length - body.length);
       const normalizedBody = targetDir === 'pages' ? body : stripDuplicateLeadingTitle(body, data.title);
       writeFileSync(join(targetAbs, file), frontmatter + normalizedBody, 'utf8');
@@ -72,7 +73,15 @@ function syncDir(srcDir, targetDir, knownNotes, required) {
     console.warn(`! 源目录不存在: ${srcDir}`);
   }
 
-  const known = new Set(existsSync(srcDir) ? readdirSync(srcDir).filter(isContentFile) : []);
+  const known = new Set();
+  if (existsSync(srcDir)) {
+    for (const file of readdirSync(srcDir)) {
+      if (!isContentFile(file)) continue;
+      const { data } = parseFrontmatter(readFileSync(join(srcDir, file), 'utf8'));
+      if (data.draft === 'true' || data.draft === true) continue;
+      known.add(file);
+    }
+  }
   let removed = 0;
   for (const file of readdirSync(targetAbs)) {
     if (!known.has(file)) {

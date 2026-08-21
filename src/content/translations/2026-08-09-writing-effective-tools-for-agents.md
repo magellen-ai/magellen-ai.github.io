@@ -1,9 +1,14 @@
 ---
-title: "Agent 写不好代码，可能是工具设计得太差（Writing effective tools for agents—with agents）"
+title: Agent 写不好代码，可能是工具设计得太差（Writing effective tools for agents—with agents）
 date: 2026-08-09
-tags: [翻译, agent, ai-coding, tool-use, mcp, agent-infra]
-summary: "Anthropic 将 Agent 工具视为确定性软件与非确定性模型之间的接口，提出一套评估驱动的设计方法：围绕真实工作流选择少量高价值工具，以清晰的命名空间、参数和描述降低误用，并通过高信号、可控长度且能指导下一步的响应提高任务成功率。"
-original: "https://www.anthropic.com/engineering/writing-tools-for-agents"
+tags:
+  - 翻译
+  - agent
+  - mcp
+  - Anthropic
+  - Agent-Tool
+summary: Anthropic 将 Agent 工具视为确定性软件与非确定性模型之间的接口，提出一套评估驱动的设计方法：围绕真实工作流选择少量高价值工具，以清晰的命名空间、参数和描述降低误用，并通过高信号、可控长度且能指导下一步的响应提高任务成功率。
+original: https://www.anthropic.com/engineering/writing-tools-for-agents
 ---
 # Agent 写不好代码，可能是工具设计得太差
 
@@ -21,9 +26,11 @@ Anthropic 对工具的优化采用评估驱动的方法，确实专业且严谨�
 
 工具设计方法论：
 - 聚合同领域相关工具，避免工具数量膨胀。
-- 控制工具返回结果，避免无关内容。
-- 工具错误原因尽可能精准，否则LLM很容易陷入重复调用直到最大轮数。
-- 
+- 控制工具返回结果
+	- 避免无关内容：比如运行代码测试实际Agent只关注最终通过与报错，但庞大的编译和运行日志等无效信息可能会占据上下文。
+	- 工具错误原因尽可能精准，否则LLM很容易陷入重复调用直到最大轮数。
+	- 限制响应长度：配置合理的分页、过滤、截断默认值；截断时给出明确的下一步指引。
+- 工具描述也是提示词：所有提示词技巧也可以应用于工具描述。比如FewShot能显著提高工具调用成功率。
 
 ## 全文总结
 
