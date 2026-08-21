@@ -32,6 +32,22 @@ npm run dev      # http://localhost:4321
 npm run build    # 产物在 dist/
 ```
 
+### Agent 验证规范
+
+博客相关的改动(布局、样式、脚本、内容格式)在 push 前**必须启动本地 dev server 验证**:
+
+```bash
+cd 00_system/blog
+npm run dev -- --host 0.0.0.0   # 启动后访问 http://localhost:4321 或局域网 IP
+# 用 curl 或浏览器确认改动页面渲染正确
+# 确认无误后再 git add / commit / push
+```
+
+验证要点:
+- 页面能正常打开(200),无控制台报错
+- 新增/修改的交互功能手动点击确认行为符合预期
+- 移动端响应式无明显破版(可用浏览器 DevTools 模拟)
+
 ## 首次部署(已完成)
 
 repo 命名 `magellen-ai.github.io`(user site 方案,URL 无路径前缀);

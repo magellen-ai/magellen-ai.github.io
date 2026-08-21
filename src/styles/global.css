@@ -195,3 +195,64 @@ footer.site {
 }
 
 .empty { color: var(--muted); }
+
+/* Language Toggle for Translations */
+.lang-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+  padding: 0.6rem 1rem;
+  background: var(--code-bg);
+  border-radius: 8px;
+  position: sticky;
+  top: 60px;
+  z-index: 5;
+}
+.lang-toggle-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-right: 0.25rem;
+}
+.lang-btn {
+  font-size: 0.82rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.lang-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.lang-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* Language display modes */
+#translation-content.mode-zh .lang-en { display: none; }
+#translation-content.mode-en .lang-zh { display: none; }
+#translation-content.mode-both .lang-en,
+#translation-content.mode-both .lang-zh,
+#translation-content.mode-both .lang-both { display: revert; }
+
+/* Visual hint for bilingual mode */
+#translation-content.mode-both .lang-zh {
+  border-left: 3px solid var(--accent);
+  padding-left: 0.75rem;
+  margin-left: 0;
+}
+
+@media (max-width: 520px) {
+  .lang-toggle {
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    top: 50px;
+  }
+  .lang-btn { font-size: 0.78rem; padding: 0.2rem 0.6rem; }
+}

@@ -1,6 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content';
-import Post from '../../layouts/Post.astro';
+import TranslationPost from '../../layouts/TranslationPost.astro';
 
 export async function getStaticPaths() {
   const items = await getCollection('translations', ({ data }) => !data.draft);
@@ -11,7 +11,7 @@ const { item } = Astro.props;
 const { Content } = await render(item);
 ---
 
-<Post
+<TranslationPost
   title={item.data.title}
   date={item.data.date}
   tags={item.data.tags}
@@ -19,4 +19,4 @@ const { Content } = await render(item);
   original={item.data.original}
 >
   <Content />
-</Post>
+</TranslationPost>

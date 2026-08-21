@@ -1,0 +1,150 @@
+---
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  date: Date;
+  tags: string[];
+  summary?: string;
+  original?: string;
+}
+
+const { title, date, tags, summary, original } = Astro.props;
+const formatted = date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<Base title={`${title} · Magellen 的博客`} description={summary}>
+  <article class="prose translation-article">
+    <h1>{title}</h1>
+    <p class="post-meta">
+      {formatted}
+      {original && <> · <a href={original}>原文 ↗</a></>}
+    </p>
+    <div class="tag-list" style="margin-bottom:1.5rem">
+      {tags.map((t) => <a href={`/tags/${encodeURIComponent(t)}/`}>#{t}</a>)}
+    </div>
+
+    <!-- Language Toggle -->
+    <div class="lang-toggle" id="lang-toggle">
+      <span class="lang-toggle-label">显示语言：</span>
+      <button class="lang-btn active" data-mode="both">混合</button>
+      <button class="lang-btn" data-mode="zh">只看中文</button>
+      <button class="lang-btn" data-mode="en">只看英文</button>
+    </div>
+
+    <div id="translation-content">
+      <slot />
+    </div>
+  </article>
+
+  <script>
+    // Language toggle for translation articles
+    // The "内容原文" section alternates: English paragraph, then Chinese paragraph
+    function initLangToggle() {
+      const toggle = document.getElementById('lang-toggle');
+      const content = document.getElementById('translation-content');
+      if (!toggle || !content) return;
+
+      // Find the "内容原文" heading (h2 containing "内容原文")
+      const headings = content.querySelectorAll('h2');
+      let contentStart: Element | null = null;
+      for (const h of headings) {
+        if (h.textContent && h.textContent.includes('内容原文')) {
+          contentStart = h;
+          break;
+        }
+      }
+
+      if (!contentStart) {
+        // No immersive translation section found, hide toggle
+        toggle.style.display = 'none';
+        return;
+      }
+
+      // Tag paragraphs after the "内容原文" heading
+      // Pattern: English paragraph followed by Chinese paragraph, repeating
+      const siblings: Element[] = [];
+      let el = contentStart.nextElementSibling;
+      while (el) {
+        siblings.push(el);
+        el = el.nextElementSibling;
+      }
+
+      // Heuristic: detect language of a text block
+      // Chinese text has a high ratio of CJK characters
+      function isChinese(text: string): boolean {
+        const cjk = text.match(/[\u4e00-\u9fff\u3400-\u4dbf]/g);
+        const total = text.replace(/\s/g, '').length;
+        if (total === 0) return false;
+        return (cjk ? cjk.length : 0) / total > 0.15;
+      }
+
+      // Check if an element is "neutral" content (should always show)
+      function isNeutral(node: Element): boolean {
+        const tag = node.tagName.toLowerCase();
+        // Always-visible elements
+        if (['hr', 'table', 'figure'].includes(tag)) return true;
+        // Code blocks
+        if (tag === 'pre') return true;
+        // Element contains image(s) — treat as neutral
+        if (node.querySelector('img')) return true;
+        // Element is mostly non-text (links, inline code only)
+        const text = (node.textContent || '').replace(/\s/g, '');
+        if (text.length < 5) return true;
+        // Element contains only a link (likely a URL/reference)
+        const links = node.querySelectorAll('a');
+        if (links.length > 0 && node.children.length === links.length) {
+          const linkText = Array.from(links).map(a => a.textContent || '').join('');
+          if (linkText.replace(/\s/g, '').length >= text.length * 0.8) return true;
+        }
+        return false;
+      }
+
+      // Tag each element
+      for (const node of siblings) {
+        // Check neutral first
+        if (isNeutral(node)) {
+          node.classList.add('lang-both');
+          continue;
+        }
+
+        const text = node.textContent || '';
+        if (isChinese(text)) {
+          node.classList.add('lang-zh');
+        } else {
+          node.classList.add('lang-en');
+        }
+      }
+
+      // Handle button clicks
+      const buttons = toggle.querySelectorAll('.lang-btn');
+      function setMode(mode: string) {
+        buttons.forEach((btn) => {
+          btn.classList.toggle('active', btn.getAttribute('data-mode') === mode);
+        });
+
+        content!.classList.remove('mode-both', 'mode-zh', 'mode-en');
+        content!.classList.add(`mode-${mode}`);
+
+        // Save preference
+        try { localStorage.setItem('translation-lang', mode); } catch {}
+      }
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const mode = btn.getAttribute('data-mode') || 'both';
+          setMode(mode);
+        });
+      });
+
+      // Restore preference
+      let saved = 'both';
+      try { saved = localStorage.getItem('translation-lang') || 'both'; } catch {}
+      setMode(saved);
+    }
+
+    // Run on page load and after Astro page transitions
+    initLangToggle();
+    document.addEventListener('astro:after-swap', initLangToggle);
+  </script>
+</Base>
